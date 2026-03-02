@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.book.in.exception.BookingConflictException;
 import com.book.in.exception.ResourceNotFoundException;
+import com.book.in.model.AvailabilitySlot;
 import com.book.in.model.Booking;
 import com.book.in.model.BookingStatus;
 import com.book.in.model.Facility;
@@ -41,8 +42,12 @@ public class BookingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + id));
     }
 
+    public List<Booking> getBookingsByUserId(Long userId) {
+        return bookingRepository.findByUserId(userId);
+    }
+
     public Booking createBooking(Long facilityId, Long userId,
-                                  LocalDate date, LocalTime startTime, LocalTime endTime) {
+                                  LocalDate date, LocalTime startTime, LocalTime endTime, String purpose) {
         // Validate facility and user exist
         Facility facility = facilityRepository.findById(facilityId)
                 .orElseThrow(() -> new ResourceNotFoundException("Facility not found with id: " + facilityId));
@@ -59,13 +64,14 @@ public class BookingService {
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
         booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setPurpose(purpose);
 
         return bookingRepository.save(booking);
     }
 
     public Booking updateBooking(Long id, Long facilityId, Long userId,
                                   LocalDate date, LocalTime startTime, LocalTime endTime,
-                                  BookingStatus status) {
+                                  BookingStatus status, String purpose) {
         Booking booking = getBookingById(id);
 
         Facility facility = facilityRepository.findById(facilityId)
@@ -88,6 +94,7 @@ public class BookingService {
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
         booking.setStatus(status);
+        booking.setPurpose(purpose);
 
         return bookingRepository.save(booking);
     }
@@ -99,7 +106,7 @@ public class BookingService {
     }
 
     // Returns available 30-minute slots for a facility on a given date
-    public List<String> getAvailableSlots(Long facilityId, LocalDate date) {
+    public List<AvailabilitySlot> getAvailableSlots(Long facilityId, LocalDate date) {
         // Verify facility exists
         facilityRepository.findById(facilityId)
                 .orElseThrow(() -> new ResourceNotFoundException("Facility not found with id: " + facilityId));
@@ -111,7 +118,7 @@ public class BookingService {
                 BookingStatus.CANCELLED);
 
         // Generate 30-minute slots from 08:00 to 20:00
-        List<String> slots = new ArrayList<>();
+        List<AvailabilitySlot> slots = new ArrayList<>();
         LocalTime slotStart = LocalTime.of(8, 0);
         LocalTime dayEnd = LocalTime.of(20, 0);
 
@@ -127,8 +134,7 @@ public class BookingService {
                 }
             }
 
-            String slotLabel = slotStart + " - " + slotEnd + (isBooked ? " [BOOKED]" : " [AVAILABLE]");
-            slots.add(slotLabel);
+            slots.add(new AvailabilitySlot(slotStart.toString(), slotEnd.toString(), !isBooked));
             slotStart = slotEnd;
         }
 

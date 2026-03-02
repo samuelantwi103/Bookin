@@ -44,8 +44,16 @@ All tables follow **3rd Normal Form** — no transitive dependencies, all non-ke
 
 | Method | Path | Description |
 |--------|------|-------------|
+| `GET` | `/users` | List all users |
+| `GET` | `/users/{id}` | Get specific user |
+| `POST` | `/users` | Create a user |
+| `PUT` | `/users/{id}` | Update a user |
+| `DELETE` | `/users/{id}` | Delete a user |
 | `GET` | `/facilities` | List all facilities |
 | `GET` | `/facilities/{id}` | Get specific facility |
+| `POST` | `/facilities` | Create a facility |
+| `PUT` | `/facilities/{id}` | Update a facility |
+| `DELETE` | `/facilities/{id}` | Delete a facility |
 | `GET` | `/bookings` | List all bookings |
 | `POST` | `/bookings` | Create booking |
 | `PUT` | `/bookings/{id}` | Update booking |

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.book.in.model.Booking;
@@ -32,8 +33,17 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Booking>> getAllBookings() {
+    public ResponseEntity<List<Booking>> getAllBookings(
+            @RequestParam(required = false) Long userId) {
+        if (userId != null) {
+            return ResponseEntity.ok(bookingService.getBookingsByUserId(userId));
+        }
         return ResponseEntity.ok(bookingService.getAllBookings());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.getBookingById(id));
     }
 
     @PostMapping
@@ -43,8 +53,9 @@ public class BookingController {
         LocalDate date = LocalDate.parse(request.get("date").toString());
         LocalTime startTime = LocalTime.parse(request.get("startTime").toString());
         LocalTime endTime = LocalTime.parse(request.get("endTime").toString());
+        String purpose = request.get("purpose") != null ? request.get("purpose").toString() : null;
 
-        Booking booking = bookingService.createBooking(facilityId, userId, date, startTime, endTime);
+        Booking booking = bookingService.createBooking(facilityId, userId, date, startTime, endTime, purpose);
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
@@ -56,8 +67,9 @@ public class BookingController {
         LocalTime startTime = LocalTime.parse(request.get("startTime").toString());
         LocalTime endTime = LocalTime.parse(request.get("endTime").toString());
         BookingStatus status = BookingStatus.valueOf(request.get("status").toString().toUpperCase());
+        String purpose = request.get("purpose") != null ? request.get("purpose").toString() : null;
 
-        Booking booking = bookingService.updateBooking(id, facilityId, userId, date, startTime, endTime, status);
+        Booking booking = bookingService.updateBooking(id, facilityId, userId, date, startTime, endTime, status, purpose);
         return ResponseEntity.ok(booking);
     }
 

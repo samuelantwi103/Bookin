@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.book.in.model.AvailabilitySlot;
 import com.book.in.service.BookingService;
 
 @RestController
@@ -22,11 +23,11 @@ public class AvailabilityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<String>> checkAvailability(
+    public ResponseEntity<List<AvailabilitySlot>> checkAvailability(
             @RequestParam Long facilityId,
             @RequestParam String date) {
         LocalDate parsedDate = LocalDate.parse(date);
-        List<String> slots = bookingService.getAvailableSlots(facilityId, parsedDate);
+        List<AvailabilitySlot> slots = bookingService.getAvailableSlots(facilityId, parsedDate);
         return ResponseEntity.ok(slots);
     }
 }
