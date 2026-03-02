@@ -8,13 +8,34 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import type { Booking } from "@/lib/types";
 import { BOOKING_STATUS_LABELS, FACILITY_TYPE_ICONS, FACILITY_TYPE_LABELS } from "@/lib/types";
+import { Lock, Calendar, Star, Building2 } from "lucide-react";
 
 export default function Bookings() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  // Load cached bookings from localStorage
+  const loadCachedBookings = () => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const cached = localStorage.getItem('user-bookings-cache');
+      if (cached) {
+        const data = JSON.parse(cached);
+        const cacheTime = localStorage.getItem('user-bookings-cache-time');
+        // Use cache if less than 3 minutes old
+        if (cacheTime && Date.now() - parseInt(cacheTime) < 3 * 60 * 1000) {
+          return data;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load cached bookings:', e);
+    }
+    return [];
+  };
+
+  const [bookings, setBookings] = useState<Booking[]>(loadCachedBookings());
   const [filter, setFilter] = useState<"all" | "CONFIRMED" | "CANCELLED" | "PENDING">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<number | null>(null);
+  const [canceling, setCanceling] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
@@ -26,7 +47,16 @@ export default function Bookings() {
       const data = user?.role === "ADMIN"
         ? await api.fetchBookings()
         : await api.fetchBookings(user!.id);
-      setBookings(data.sort((a: Booking, b: Booking) => b.id - a.id));
+      const sortedData = data.sort((a: Booking, b: Booking) => b.id - a.id);
+      setBookings(sortedData);
+      
+      // Cache the bookings
+      try {
+        localStorage.setItem('user-bookings-cache', JSON.stringify(sortedData));
+        localStorage.setItem('user-bookings-cache-time', Date.now().toString());
+      } catch (e) {
+        console.error('Failed to cache bookings:', e);
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load bookings");
     } finally {
@@ -35,6 +65,7 @@ export default function Bookings() {
   };
 
   const handleCancel = async (id: number) => {
+    setCanceling(true);
     try {
       await api.cancelBooking(id);
       setCancelTarget(null);
@@ -42,6 +73,8 @@ export default function Bookings() {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Cancel failed");
       setCancelTarget(null);
+    } finally {
+      setCanceling(false);
     }
   };
 
@@ -72,7 +105,7 @@ export default function Bookings() {
         <Navbar />
         <div className="page container" style={{ textAlign: "center", paddingTop: 200 }}>
           <div className="empty-state">
-            <div className="empty-state-icon">🔐</div>
+            <div className="empty-state-icon"><Lock size={48} /></div>
             <h3>Sign in required</h3>
             <p style={{ marginBottom: 24 }}>Sign in to view your bookings.</p>
             <Link href="/login" className="btn btn-primary">Sign In</Link>
@@ -172,7 +205,7 @@ export default function Bookings() {
           </div>
         ) : displayed.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📅</div>
+            <div className="empty-state-icon"><Calendar size={48} /></div>
             <h3>No bookings yet</h3>
             <p>When you book a facility, it will appear here.</p>
           </div>
@@ -328,7 +361,7 @@ function PersonalInsights({ bookings, isAdmin }: { bookings: Booking[]; isAdmin:
         </h3>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div style={{ textAlign: "center", padding: 12, background: "var(--gold-50)", borderRadius: "var(--radius)" }}>
-            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)", color: "var(--gold-dark)" }}>
+            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)", color: "var(--primary-dark)" }}>
               {insights.totalHours}h
             </div>
             <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Hours Booked</div>
@@ -343,7 +376,9 @@ function PersonalInsights({ bookings, isAdmin }: { bookings: Booking[]; isAdmin:
         <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
           {insights.favFacility && (
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, alignItems: "center" }}>
-              <span style={{ color: "var(--text-secondary)" }}>⭐ Favorite Room</span>
+              <span style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 6 }}>
+                <Star size={14} /> Favorite Room
+              </span>
               <span style={{ fontWeight: 600 }}>
                 {FACILITY_TYPE_ICONS[insights.favFacility.type as keyof typeof FACILITY_TYPE_ICONS]} {insights.favFacility.name}
                 <span style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 4 }}>({insights.favFacility.count}×)</span>
@@ -352,7 +387,9 @@ function PersonalInsights({ bookings, isAdmin }: { bookings: Booking[]; isAdmin:
           )}
           {insights.favBuilding && (
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, alignItems: "center" }}>
-              <span style={{ color: "var(--text-secondary)" }}>🏛️ Top Building</span>
+              <span style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 6 }}>
+                <Building2 size={14} /> Top Building
+              </span>
               <span style={{ fontWeight: 600 }}>
                 {insights.favBuilding.name}
                 <span style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 4 }}>({insights.favBuilding.count}×)</span>
@@ -360,7 +397,9 @@ function PersonalInsights({ bookings, isAdmin }: { bookings: Booking[]; isAdmin:
             </div>
           )}
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, alignItems: "center" }}>
-            <span style={{ color: "var(--text-secondary)" }}>📅 Busiest Day</span>
+            <span style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 6 }}>
+              <Calendar size={14} /> Busiest Day
+            </span>
             <span style={{ fontWeight: 600 }}>{insights.busiestDay}</span>
           </div>
         </div>

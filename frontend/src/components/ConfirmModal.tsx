@@ -11,6 +11,7 @@ interface ConfirmModalProps {
   variant?: "danger" | "warning" | "info";
   onConfirm: () => void;
   onCancel: () => void;
+  confirming?: boolean;
   children?: React.ReactNode;
 }
 
@@ -29,6 +30,7 @@ export default function ConfirmModal({
   variant = "info",
   onConfirm,
   onCancel,
+  confirming = false,
   children,
 }: ConfirmModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -71,11 +73,11 @@ export default function ConfirmModal({
         <p>{message}</p>
         {children}
         <div className="confirm-actions">
-          <button className="btn btn-ghost" onClick={onCancel}>
+          <button className="btn btn-ghost" onClick={onCancel} disabled={confirming}>
             {cancelLabel}
           </button>
-          <button className={`btn ${config.btnClass}`} onClick={onConfirm}>
-            {confirmLabel}
+          <button className={`btn ${config.btnClass}`} onClick={onConfirm} disabled={confirming}>
+            {confirming ? "Processing..." : confirmLabel}
           </button>
         </div>
       </div>

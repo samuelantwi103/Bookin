@@ -6,6 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +31,7 @@ import com.book.in.service.BookingService;
 
 @RestController
 @RequestMapping("/bookings")
+@Tag(name = "Bookings", description = "Facility booking management endpoints")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -33,7 +41,12 @@ public class BookingController {
     }
 
     @GetMapping
+    @Operation(
+        summary = "Get all bookings",
+        description = "Retrieve all bookings or filter by user ID"
+    )
     public ResponseEntity<List<Booking>> getAllBookings(
+            @Parameter(description = "Filter bookings by user ID")
             @RequestParam(required = false) Long userId) {
         if (userId != null) {
             return ResponseEntity.ok(bookingService.getBookingsByUserId(userId));
@@ -42,11 +55,26 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+    @Operation(summary = "Get booking by ID", description = "Retrieve a specific booking by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Booking found"),
+        @ApiResponse(responseCode = "404", description = "Booking not found", content = @Content)
+    })
+    public ResponseEntity<Booking> getBookingById(
+            @Parameter(description = "Booking ID") @PathVariable Long id) {
         return ResponseEntity.ok(bookingService.getBookingById(id));
     }
 
     @PostMapping
+    @Operation(
+        summary = "Create new booking",
+        description = "Create a new facility booking with specified date, time, and purpose"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Booking created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content),
+        @ApiResponse(responseCode = "409", description = "Booking conflict", content = @Content)
+    })
     public ResponseEntity<Booking> createBooking(@RequestBody Map<String, Object> request) {
         Long facilityId = Long.valueOf(request.get("facilityId").toString());
         Long userId = Long.valueOf(request.get("userId").toString());

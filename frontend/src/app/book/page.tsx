@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { Building, Facility, AvailabilitySlot } from "@/lib/types";
 import { FACILITY_TYPE_LABELS, FACILITY_TYPE_ICONS } from "@/lib/types";
 import Link from "next/link";
+import { Lock, Calendar, Building2 as BuildingIcon } from "lucide-react";
 
 function BookContent() {
   const searchParams = useSearchParams();
@@ -31,6 +32,7 @@ function BookContent() {
 
   // UI
   const [loading, setLoading] = useState(true);
+  const [facilitiesLoading, setFacilitiesLoading] = useState(false);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,8 +57,13 @@ function BookContent() {
   }, []);
 
   const loadFacilities = async (buildingId: number) => {
-    const facs = await api.fetchFacilities(buildingId);
-    setFacilities(facs);
+    setFacilitiesLoading(true);
+    try {
+      const facs = await api.fetchFacilities(buildingId);
+      setFacilities(facs);
+    } finally {
+      setFacilitiesLoading(false);
+    }
   };
 
   const loadSlots = async (facilityId: number, date: string) => {
@@ -211,7 +218,7 @@ function BookContent() {
         <Navbar />
         <div className="page container" style={{ textAlign: "center", paddingTop: 200 }}>
           <div className="empty-state">
-            <div className="empty-state-icon">🔐</div>
+            <div className="empty-state-icon"><Lock size={48} /></div>
             <h3>Sign in required</h3>
             <p style={{ marginBottom: 24 }}>
               You need to sign in to book a facility.
@@ -401,9 +408,15 @@ function BookContent() {
                 {currentBuilding.name} — Choose a Room
               </h2>
             </div>
-            {facilities.length === 0 ? (
+            {facilitiesLoading ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="skeleton" style={{ height: 180, borderRadius: "var(--radius)" }} />
+                ))}
+              </div>
+            ) : facilities.length === 0 ? (
               <div className="empty-state">
-                <div className="empty-state-icon">🏠</div>
+                <div className="empty-state-icon"><BuildingIcon size={48} /></div>
                 <h3>No facilities found</h3>
                 <p>This building has no bookable rooms yet.</p>
               </div>
@@ -535,7 +548,7 @@ function BookContent() {
               </div>
             ) : slots.length === 0 ? (
               <div className="empty-state">
-                <div className="empty-state-icon">📅</div>
+                <div className="empty-state-icon"><Calendar size={48} /></div>
                 <h3>No slots available</h3>
                 <p>Try picking a different date.</p>
               </div>
@@ -554,7 +567,7 @@ function BookContent() {
                       alignItems: "center",
                     }}
                   >
-                    <div style={{ fontSize: 14, color: "var(--gold-dark)", fontWeight: 700 }}>
+                    <div style={{ fontSize: 14, color: "var(--primary-dark)", fontWeight: 700 }}>
                       ✨ {selectedSlots.length} slot{selectedSlots.length > 1 ? "s" : ""} selected: {timeRange.start} – {timeRange.end}
                     </div>
                     <button

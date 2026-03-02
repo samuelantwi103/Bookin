@@ -2,6 +2,7 @@
 
 import type { Facility } from "@/lib/types";
 import { FACILITY_TYPE_LABELS, FACILITY_TYPE_ICONS } from "@/lib/types";
+import { MapPin, Users } from "lucide-react";
 
 interface FacilityCardProps {
   facility: Facility;
@@ -33,12 +34,12 @@ export default function FacilityCard({ facility, onSelect, selected }: FacilityC
           {facility.name}
         </h3>
 
-        <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
-          📍 {facility.location}
+        <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8, display: "flex", alignItems: "center", gap: 4 }}>
+          <MapPin size={14} /> {facility.location}
         </div>
 
         <div style={{ display: "flex", gap: 16, fontSize: 13, color: "var(--text-muted)" }}>
-          <span>👥 {facility.capacity}</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Users size={14} /> {facility.capacity}</span>
           {facility.floor && <span>Floor {facility.floor}</span>}
           {facility.roomNumber && <span>Room {facility.roomNumber}</span>}
         </div>

@@ -79,6 +79,8 @@ export const api = {
     request<AvailabilitySlot[]>(`/availability?facilityId=${facilityId}&date=${date}`),
 
   /* ── Auth ── */
-  login: (email: string) =>
-    request<User>('/auth/login', { method: 'POST', body: JSON.stringify({ email }) }),
+  login: (email: string, password: string) =>
+    request<User>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  signup: (name: string, email: string, password: string) =>
+    request<User>('/auth/signup', { method: 'POST', body: JSON.stringify({ name, email, password }) }),
 };

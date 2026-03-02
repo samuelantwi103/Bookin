@@ -14,27 +14,59 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  // Load user from cache immediately
+  const getCachedUser = (): User | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const cached = localStorage.getItem("user");
+      const cacheTime = localStorage.getItem("user-cache-time");
+      if (cached && cacheTime) {
+        // User cache doesn't expire (only on logout)
+        return JSON.parse(cached);
+      }
+    } catch (e) {
+      console.error('Failed to load cached user:', e);
+    }
+    return null;
+  };
+
+  const [user, setUser] = useState<User | null>(getCachedUser());
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    // On mount, verify cached user is still valid
+    const cachedUser = getCachedUser();
+    if (cachedUser) {
+      setUser(cachedUser);
     }
     setIsLoading(false);
   }, []);
 
   const login = (userData: User) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    try {
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("user-cache-time", Date.now().toString());
+    } catch (e) {
+      console.error('Failed to cache user:', e);
+    }
     router.push("/");
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    try {
+      localStorage.removeItem("user");
+      localStorage.removeItem("user-cache-time");
+      // Clear all dashboard caches on logout
+      localStorage.removeItem("admin-dashboard-cache");
+      localStorage.removeItem("admin-dashboard-cache-time");
+      localStorage.removeItem("user-bookings-cache");
+      localStorage.removeItem("user-bookings-cache-time");
+    } catch (e) {
+      console.error('Failed to clear cache:', e);
+    }
     router.push("/login");
   };
 

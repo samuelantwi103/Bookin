@@ -1,6 +1,7 @@
 package com.book.in.config;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.book.in.model.Building;
@@ -17,13 +18,16 @@ public class DataSeeder implements CommandLineRunner {
     private final BuildingRepository buildingRepository;
     private final FacilityRepository facilityRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DataSeeder(BuildingRepository buildingRepository,
                       FacilityRepository facilityRepository,
-                      UserRepository userRepository) {
+                      UserRepository userRepository,
+                      PasswordEncoder passwordEncoder) {
         this.buildingRepository = buildingRepository;
         this.facilityRepository = facilityRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -155,11 +159,14 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        userRepository.save(new User(null, "Samuel Antwi", "samuel@ug.edu.gh", "USER"));
-        userRepository.save(new User(null, "Admin User", "admin@ug.edu.gh", "ADMIN"));
-        userRepository.save(new User(null, "Kwame Mensah", "kwame.mensah@ug.edu.gh", "USER"));
-        userRepository.save(new User(null, "Ama Serwaa", "ama.serwaa@ug.edu.gh", "USER"));
-        System.out.println("Seeded 4 users");
+        // Default password for all demo accounts: "password123"
+        String hashedPassword = passwordEncoder.encode("password123");
+        
+        userRepository.save(new User(null, "Samuel Antwi", "samuel@ug.edu.gh", "USER", hashedPassword));
+        userRepository.save(new User(null, "Admin User", "admin@ug.edu.gh", "ADMIN", hashedPassword));
+        userRepository.save(new User(null, "Kwame Mensah", "kwame.mensah@ug.edu.gh", "USER", hashedPassword));
+        userRepository.save(new User(null, "Ama Serwaa", "ama.serwaa@ug.edu.gh", "USER", hashedPassword));
+        System.out.println("Seeded 4 users (password: password123)");
     }
 
     private Facility createFacility(String name, Building building, FacilityType type,

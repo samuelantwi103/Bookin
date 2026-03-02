@@ -10,7 +10,13 @@ export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Prevent hydration mismatch by only showing user-dependent UI after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -122,7 +128,7 @@ export default function Navbar() {
           >
             bookin
           </span>
-          {isAdmin && (
+          {mounted && isAdmin && (
             <span
               style={{
                 fontSize: 10,

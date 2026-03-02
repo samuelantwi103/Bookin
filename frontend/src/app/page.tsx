@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import type { Building, Facility } from "@/lib/types";
 import { FACILITY_TYPE_ICONS, FACILITY_TYPE_LABELS } from "@/lib/types";
+import { Building2, DoorOpen, Users as UsersIcon } from "lucide-react";
 
 export default function Home() {
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -107,7 +108,7 @@ export default function Home() {
               fontWeight: 700,
               letterSpacing: "0.05em",
               marginBottom: 16,
-              color: "var(--gold-light)",
+              color: "rgba(255,255,255,0.95)",
               textTransform: "uppercase",
               border: "1px solid rgba(207,181,59,0.3)",
             }}
@@ -195,12 +196,12 @@ export default function Home() {
             }}
           >
             {[
-              { value: buildings.length, label: "Buildings", icon: "🏛️" },
-              { value: facilities.length, label: "Facilities", icon: "🚪" },
+              { value: buildings.length, label: "Buildings", icon: <Building2 size={20} /> },
+              { value: facilities.length, label: "Facilities", icon: <DoorOpen size={20} /> },
               {
                 value: facilities.reduce((t, f) => t + f.capacity, 0),
                 label: "Total Capacity",
-                icon: "💺",
+                icon: <UsersIcon size={20} />,
               },
             ].map((s) => (
               <div key={s.label} style={{ textAlign: "center" }}>
@@ -210,7 +211,7 @@ export default function Home() {
                     fontSize: 28,
                     fontWeight: 800,
                     fontFamily: "var(--font-display)",
-                    color: "var(--gold-light)",
+                    color: "white",
                   }}
                 >
                   {loading ? "—" : s.value.toLocaleString()}
@@ -392,7 +393,7 @@ export default function Home() {
 
         {!loading && filteredBuildings.length === 0 && (
           <div className="empty-state">
-            <div className="empty-state-icon">🏛️</div>
+            <div className="empty-state-icon"><Building2 size={48} /></div>
             <h3>No buildings found</h3>
             <p>Try a different search term</p>
           </div>

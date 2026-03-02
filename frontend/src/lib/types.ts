@@ -78,7 +78,7 @@ export interface BookingPayload {
 
 export interface FacilityPayload {
   name: string;
-  buildingId: number;
+  building: { id: number };
   type: FacilityType;
   location: string;
   capacity: number;

@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { Building, Facility, User, Booking, FacilityType } from "@/lib/types";
 import { FACILITY_TYPE_LABELS, FACILITY_TYPE_ICONS } from "@/lib/types";
 import Link from "next/link";
+import { Building2, DoorOpen, Calendar, Users, BarChart3, Lock, Check, X, Clock, CheckCircle2, XCircle, Star, Crown } from "lucide-react";
 
 type Tab = "campus" | "users" | "analytics";
 
@@ -16,11 +17,32 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("campus");
   const { user, isLoading: authLoading } = useAuth();
 
+  // Load cached data from localStorage
+  const loadCachedData = () => {
+    if (typeof window === 'undefined') return { buildings: [], facilities: [], users: [], bookings: [] };
+    try {
+      const cached = localStorage.getItem('admin-dashboard-cache');
+      if (cached) {
+        const data = JSON.parse(cached);
+        const cacheTime = localStorage.getItem('admin-dashboard-cache-time');
+        // Use cache if less than 5 minutes old
+        if (cacheTime && Date.now() - parseInt(cacheTime) < 5 * 60 * 1000) {
+          return data;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load cached data:', e);
+    }
+    return { buildings: [], facilities: [], users: [], bookings: [] };
+  };
+
+  const initialCache = loadCachedData();
+
   // Global data for stats
-  const [buildings, setBuildings] = useState<Building[]>([]);
-  const [facilities, setFacilities] = useState<Facility[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>(initialCache.buildings);
+  const [facilities, setFacilities] = useState<Facility[]>(initialCache.facilities);
+  const [users, setUsers] = useState<User[]>(initialCache.users);
+  const [bookings, setBookings] = useState<Booking[]>(initialCache.bookings);
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,6 +58,14 @@ export default function AdminDashboard() {
         setUsers(u);
         setBookings(bk);
         setStatsLoading(false);
+        
+        // Cache the data
+        try {
+          localStorage.setItem('admin-dashboard-cache', JSON.stringify({ buildings: b, facilities: f, users: u, bookings: bk }));
+          localStorage.setItem('admin-dashboard-cache-time', Date.now().toString());
+        } catch (e) {
+          console.error('Failed to cache data:', e);
+        }
       }).catch(() => setStatsLoading(false));
     }
   }, [user]);
@@ -67,7 +97,7 @@ export default function AdminDashboard() {
         <Navbar />
         <div className="page container" style={{ textAlign: "center", paddingTop: 200 }}>
           <div className="empty-state">
-            <div className="empty-state-icon">🔐</div>
+            <div className="empty-state-icon"><Lock size={48} /></div>
             <h3>Admin access required</h3>
             <p style={{ marginBottom: 24 }}>Sign in as an administrator to access this page.</p>
             <Link href="/login" className="btn btn-primary">Sign In</Link>
@@ -101,37 +131,37 @@ export default function AdminDashboard() {
         {/* Stats Row */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 28 }}>
           <div className="stat-card" style={{ background: "var(--primary-50)", border: "1px solid var(--primary-100)" }}>
-            <div className="stat-icon" style={{ background: "var(--primary)", color: "white" }}>🏛️</div>
+            <div className="stat-icon" style={{ background: "var(--primary)", color: "white" }}><Building2 size={20} /></div>
             <div>
               <div className="stat-value" style={{ color: "var(--primary)" }}>
-                {statsLoading ? "—" : buildings.length}
+                {buildings.length}
               </div>
               <div className="stat-label" style={{ color: "var(--text-secondary)" }}>Buildings</div>
             </div>
           </div>
           <div className="stat-card" style={{ background: "var(--gold-50)", border: "1px solid var(--gold-100)" }}>
-            <div className="stat-icon" style={{ background: "var(--gold)", color: "var(--primary-dark)" }}>🚪</div>
+            <div className="stat-icon" style={{ background: "var(--gold)", color: "var(--primary-dark)" }}><DoorOpen size={20} /></div>
             <div>
-              <div className="stat-value" style={{ color: "var(--gold-dark)" }}>
-                {statsLoading ? "—" : facilities.length}
+              <div className="stat-value" style={{ color: "var(--primary-dark)" }}>
+                {facilities.length}
               </div>
               <div className="stat-label" style={{ color: "var(--text-secondary)" }}>Facilities</div>
             </div>
           </div>
           <div className="stat-card" style={{ background: "var(--primary-50)", border: "1px solid var(--primary-100)" }}>
-            <div className="stat-icon" style={{ background: "var(--primary)", color: "white" }}>📅</div>
+            <div className="stat-icon" style={{ background: "var(--primary)", color: "white" }}><Calendar size={20} /></div>
             <div>
               <div className="stat-value" style={{ color: "var(--primary)" }}>
-                {statsLoading ? "—" : stats.activeBookings}
+                {stats.activeBookings}
               </div>
               <div className="stat-label" style={{ color: "var(--text-secondary)" }}>Active Bookings</div>
             </div>
           </div>
           <div className="stat-card" style={{ background: "var(--gold-50)", border: "1px solid var(--gold-100)" }}>
-            <div className="stat-icon" style={{ background: "var(--gold)", color: "var(--primary-dark)" }}>👥</div>
+            <div className="stat-icon" style={{ background: "var(--gold)", color: "var(--primary-dark)" }}><Users size={20} /></div>
             <div>
-              <div className="stat-value" style={{ color: "var(--gold-dark)" }}>
-                {statsLoading ? "—" : users.length}
+              <div className="stat-value" style={{ color: "var(--primary-dark)" }}>
+                {users.length}
               </div>
               <div className="stat-label" style={{ color: "var(--text-secondary)" }}>Users</div>
             </div>
@@ -141,13 +171,13 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div className="tabs">
           <button className={`tab ${tab === "campus" ? "active" : ""}`} onClick={() => setTab("campus")}>
-            🏛️ Campus & Facilities
+            <Building2 size={16} style={{ marginRight: 6 }} /> Campus & Facilities
           </button>
           <button className={`tab ${tab === "analytics" ? "active" : ""}`} onClick={() => setTab("analytics")}>
-            📊 Analytics
+            <BarChart3 size={16} style={{ marginRight: 6 }} /> Analytics
           </button>
           <button className={`tab ${tab === "users" ? "active" : ""}`} onClick={() => setTab("users")}>
-            👥 Users
+            <Users size={16} style={{ marginRight: 6 }} /> Users
           </button>
         </div>
 
@@ -185,16 +215,19 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loadingData, setLoadingData] = useState(true);
 
   // Building Modal
   const [showBuildingModal, setShowBuildingModal] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState<Building | null>(null);
+  const [submittingBuilding, setSubmittingBuilding] = useState(false);
   const blankBuilding = { name: "", code: "", campus: "", description: "" };
   const [buildingForm, setBuildingForm] = useState(blankBuilding);
 
   // Facility Modal
   const [showFacilityModal, setShowFacilityModal] = useState(false);
   const [editingFacility, setEditingFacility] = useState<Facility | null>(null);
+  const [submittingFacility, setSubmittingFacility] = useState(false);
   const [facilityParentId, setFacilityParentId] = useState<number | null>(null);
   const blankFacility = {
     name: "", buildingId: 0, type: "LECTURE_HALL" as FacilityType,
@@ -204,12 +237,15 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
 
   // Delete
   const [deleteTarget, setDeleteTarget] = useState<{ type: "building" | "facility"; id: number } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => { reload(); }, []);
 
   const reload = () => {
+    setLoadingData(true);
     Promise.all([api.fetchBuildings(), api.fetchFacilities()])
-      .then(([b, f]) => { setBuildings(b); setFacilities(f); onDataChange(); });
+      .then(([b, f]) => { setBuildings(b); setFacilities(f); onDataChange(); })
+      .finally(() => setLoadingData(false));
   };
 
   const facilitiesFor = (buildingId: number) =>
@@ -234,6 +270,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
   };
   const handleBuildingSubmit = async () => {
     setError(null);
+    setSubmittingBuilding(true);
     try {
       if (editingBuilding) {
         await api.updateBuilding(editingBuilding.id, buildingForm);
@@ -247,6 +284,8 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
       reload();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setSubmittingBuilding(false);
     }
   };
 
@@ -274,9 +313,10 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
   };
   const handleFacilitySubmit = async () => {
     setError(null);
+    setSubmittingFacility(true);
     const payload = {
       name: facilityForm.name,
-      buildingId: Number(facilityForm.buildingId),
+      building: { id: Number(facilityForm.buildingId) },
       type: facilityForm.type,
       location: facilityForm.location,
       capacity: Number(facilityForm.capacity),
@@ -290,7 +330,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
         await api.updateFacility(editingFacility.id, payload);
       } else {
         await api.createFacility(payload);
-        setExpandedId(payload.buildingId);
+        setExpandedId(Number(facilityForm.buildingId));
       }
       setShowFacilityModal(false);
       setFacilityForm(blankFacility);
@@ -298,12 +338,15 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
       reload();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setSubmittingFacility(false);
     }
   };
 
   // Delete
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    setDeleting(true);
     try {
       if (deleteTarget.type === "building") {
         await api.deleteBuilding(deleteTarget.id);
@@ -315,6 +358,8 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Delete failed");
       setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -404,7 +449,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
                       <span style={{ color: "var(--border)" }}>·</span>
                       <span style={{ color: "var(--primary)", fontWeight: 600 }}>{bFacilities.length} room{bFacilities.length !== 1 ? "s" : ""}</span>
                       <span style={{ color: "var(--border)" }}>·</span>
-                      <span style={{ color: "var(--gold-dark)", fontWeight: 600 }}>{totalCap} seats</span>
+                      <span style={{ color: "var(--primary-dark)", fontWeight: 600 }}>{totalCap} seats</span>
                     </div>
                   </div>
                 </div>
@@ -473,7 +518,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
                         <button
                           className="btn btn-ghost btn-sm"
                           onClick={() => openFacilityCreate(b.id)}
-                          style={{ color: "var(--gold-dark)", fontWeight: 600 }}
+                          style={{ color: "var(--primary-dark)", fontWeight: 600 }}
                         >
                           + Add Facility to {b.name}
                         </button>
@@ -489,7 +534,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
 
       {filtered.length === 0 && (
         <div className="empty-state">
-          <div className="empty-state-icon">🏛️</div>
+          <div className="empty-state-icon"><Building2 size={48} /></div>
           <h3>{search ? "No buildings match your search" : "No buildings yet"}</h3>
           <p>{search ? "Try a different search term" : "Add your first building to get started"}</p>
           {!search && (
@@ -509,6 +554,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
         submitLabel={editingBuilding ? "Save Changes" : "Create Building"}
         submitVariant="gold"
         accent="gold"
+        submitting={submittingBuilding}
       >
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div className="field">
@@ -538,6 +584,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
         onSubmit={handleFacilitySubmit}
         submitLabel={editingFacility ? "Save Changes" : "Create Facility"}
         accent="blue"
+        submitting={submittingFacility}
       >
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div className="field">
@@ -597,6 +644,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
         variant="danger"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+        confirming={deleting}
       />
     </div>
   );
@@ -737,14 +785,14 @@ function AnalyticsTab({
       {/* Row 1: Summary stat strip */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
         {[
-          { icon: "📅", label: "Total Bookings", value: bookings.length, color: "var(--primary)" },
-          { icon: "✅", label: "Confirmed", value: bookings.filter((b) => b.status === "CONFIRMED").length, color: "var(--success)" },
-          { icon: "⏳", label: "Upcoming", value: analytics.upcoming, color: "var(--gold)" },
-          { icon: "🕐", label: "Hours Booked", value: Math.round(analytics.totalHours), color: "var(--primary)" },
-          { icon: "❌", label: "Cancelled", value: bookings.filter((b) => b.status === "CANCELLED").length, color: "var(--error)" },
+          { icon: <Calendar size={18} />, label: "Total Bookings", value: bookings.length, color: "var(--primary)" },
+          { icon: <CheckCircle2 size={18} />, label: "Confirmed", value: bookings.filter((b) => b.status === "CONFIRMED").length, color: "var(--success)" },
+          { icon: <Clock size={18} />, label: "Upcoming", value: analytics.upcoming, color: "var(--gold)" },
+          { icon: <Clock size={18} />, label: "Hours Booked", value: Math.round(analytics.totalHours), color: "var(--primary)" },
+          { icon: <XCircle size={18} />, label: "Cancelled", value: bookings.filter((b) => b.status === "CANCELLED").length, color: "var(--error)" },
         ].map((s) => (
           <div key={s.label} className="card" style={{ padding: "14px 16px", textAlign: "center", borderTop: `3px solid ${s.color}` }}>
-            <div style={{ fontSize: 18, marginBottom: 4 }}>{s.icon}</div>
+            <div style={{ marginBottom: 4, display: "flex", justifyContent: "center", color: s.color }}>{s.icon}</div>
             <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)", color: s.color }}>{s.value}</div>
             <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>{s.label}</div>
           </div>
@@ -974,7 +1022,7 @@ function AnalyticsTab({
                     flexShrink: 0,
                   }}
                 >
-                  {i === 0 ? "👑" : i + 1}
+                  {i === 0 ? <Crown size={14} /> : i + 1}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tb.user.name}</div>
@@ -982,7 +1030,7 @@ function AnalyticsTab({
                     <div style={{ height: "100%", width: `${(tb.count / analytics.maxBooker) * 100}%`, background: i === 0 ? "var(--gold)" : "var(--primary)", borderRadius: 2, transition: "width 0.6s" }} />
                   </div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: i === 0 ? "var(--gold-dark)" : "var(--primary)", fontFamily: "var(--font-display)" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "var(--primary-dark)", fontFamily: "var(--font-display)" }}>
                   {tb.count}
                 </div>
               </div>
@@ -1023,9 +1071,9 @@ function AnalyticsTab({
                 </div>
                 <span
                   className={`badge ${b.status === "CONFIRMED" ? "badge-success" : b.status === "CANCELLED" ? "badge-error" : "badge-warning"}`}
-                  style={{ fontSize: 10, padding: "2px 6px" }}
+                  style={{ fontSize: 10, padding: "2px 6px", display: "flex", alignItems: "center", gap: 4 }}
                 >
-                  {b.status === "CONFIRMED" ? "✓" : b.status === "CANCELLED" ? "✗" : "⏳"}
+                  {b.status === "CONFIRMED" ? <Check size={12} /> : b.status === "CANCELLED" ? <X size={12} /> : <Clock size={12} />}
                 </span>
               </div>
             ))}
@@ -1045,16 +1093,24 @@ function UsersTab({ onDataChange }: { onDataChange: () => void }) {
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(true);
 
   // Modal
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const blank = { name: "", email: "", role: "USER" as "USER" | "ADMIN" };
   const [form, setForm] = useState(blank);
 
   useEffect(() => { reload(); }, []);
 
-  const reload = () => { api.fetchUsers().then((u) => { setUsers(u); onDataChange(); }); };
+  const reload = () => {
+    setLoadingUsers(true);
+    api.fetchUsers()
+      .then((u) => { setUsers(u); onDataChange(); })
+      .finally(() => setLoadingUsers(false));
+  };
 
   const openCreate = () => { setEditing(null); setForm(blank); setShowModal(true); };
   const openEdit = (u: User) => {
@@ -1065,6 +1121,7 @@ function UsersTab({ onDataChange }: { onDataChange: () => void }) {
 
   const handleSubmit = async () => {
     setError(null);
+    setSubmitting(true);
     try {
       if (editing) {
         await api.updateUser(editing.id, form);
@@ -1077,10 +1134,13 @@ function UsersTab({ onDataChange }: { onDataChange: () => void }) {
       reload();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: number) => {
+    setDeleting(true);
     try {
       await api.deleteUser(id);
       setDeleteTarget(null);
@@ -1088,6 +1148,8 @@ function UsersTab({ onDataChange }: { onDataChange: () => void }) {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Delete failed");
       setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -1167,8 +1229,8 @@ function UsersTab({ onDataChange }: { onDataChange: () => void }) {
                 </td>
                 <td style={{ fontSize: 13, color: "var(--text-secondary)" }}>{u.email}</td>
                 <td>
-                  <span className={`badge ${u.role === "ADMIN" ? "badge-gold" : "badge-primary"}`}>
-                    {u.role === "ADMIN" ? "👑 Admin" : "User"}
+                  <span className={`badge ${u.role === "ADMIN" ? "badge-gold" : "badge-primary"}`} style={{ display: "flex", alignItems: "center", gap: 4, width: "fit-content" }}>
+                    {u.role === "ADMIN" && <Crown size={12} />} {u.role === "ADMIN" ? "Admin" : "User"}
                   </span>
                 </td>
                 <td>
@@ -1185,7 +1247,7 @@ function UsersTab({ onDataChange }: { onDataChange: () => void }) {
 
       {filtered.length === 0 && (
         <div className="empty-state">
-          <div className="empty-state-icon">👥</div>
+          <div className="empty-state-icon"><Users size={48} /></div>
           <h3>{search ? "No users match your search" : "No users yet"}</h3>
           <p>{search ? "Try a different search term" : "Add your first user to get started"}</p>
         </div>
@@ -1199,6 +1261,7 @@ function UsersTab({ onDataChange }: { onDataChange: () => void }) {
         onSubmit={handleSubmit}
         submitLabel={editing ? "Save Changes" : "Create User"}
         accent="blue"
+        submitting={submitting}
       >
         <div className="field">
           <label className="label">Full Name</label>
@@ -1226,6 +1289,7 @@ function UsersTab({ onDataChange }: { onDataChange: () => void }) {
         variant="danger"
         onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
         onCancel={() => setDeleteTarget(null)}
+        confirming={deleting}
       />
     </div>
   );
