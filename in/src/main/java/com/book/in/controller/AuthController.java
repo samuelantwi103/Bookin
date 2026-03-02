@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.book.in.model.User;
 import com.book.in.repository.UserRepository;
+import com.book.in.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,10 +27,12 @@ import com.book.in.repository.UserRepository;
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -115,14 +118,14 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Email already registered"));
         }
 
-        // Create new user
+        // Create new user via service layer
         User newUser = new User();
         newUser.setName(name);
         newUser.setEmail(email);
-        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setPassword(password);
         newUser.setRole("USER"); // Default role
 
-        User savedUser = userRepository.save(newUser);
+        User savedUser = userService.createUser(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 }

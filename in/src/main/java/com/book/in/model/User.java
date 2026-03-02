@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "users")
@@ -38,5 +40,11 @@ public class User {
 
     @NotBlank(message = "Password is required")
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
+
+    @JsonProperty("password")
+    public void setPasswordJson(String password) {
+        this.password = password;
+    }
 }
