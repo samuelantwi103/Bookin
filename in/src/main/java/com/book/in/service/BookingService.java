@@ -63,7 +63,7 @@ public class BookingService {
         booking.setDate(date);
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
-        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setStatus(BookingStatus.PENDING);
         booking.setPurpose(purpose);
 
         return bookingRepository.save(booking);
@@ -96,6 +96,15 @@ public class BookingService {
         booking.setStatus(status);
         booking.setPurpose(purpose);
 
+        return bookingRepository.save(booking);
+    }
+
+    public Booking approveBooking(Long id) {
+        Booking booking = getBookingById(id);
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            throw new BookingConflictException("Only pending bookings can be approved");
+        }
+        booking.setStatus(BookingStatus.CONFIRMED);
         return bookingRepository.save(booking);
     }
 

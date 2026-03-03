@@ -36,6 +36,8 @@ export default function Bookings() {
   const [error, setError] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<number | null>(null);
   const [canceling, setCanceling] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [approveTarget, setApproveTarget] = useState<number | null>(null);
   const { user, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
@@ -75,6 +77,20 @@ export default function Bookings() {
       setCancelTarget(null);
     } finally {
       setCanceling(false);
+    }
+  };
+
+  const handleApprove = async (id: number) => {
+    setApproving(true);
+    try {
+      await api.approveBooking(id);
+      setApproveTarget(null);
+      loadBookings();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Approve failed");
+      setApproveTarget(null);
+    } finally {
+      setApproving(false);
     }
   };
 
@@ -263,15 +279,26 @@ export default function Bookings() {
                       </span>
                     </td>
                     <td>
-                      {b.status !== "CANCELLED" && (
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          style={{ color: "var(--error)", fontSize: 12 }}
-                          onClick={() => setCancelTarget(b.id)}
-                        >
-                          Cancel
-                        </button>
-                      )}
+                      <div style={{ display: "flex", gap: 4 }}>
+                        {user.role === "ADMIN" && b.status === "PENDING" && (
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ color: "var(--success)", fontSize: 12 }}
+                            onClick={() => setApproveTarget(b.id)}
+                          >
+                            Approve
+                          </button>
+                        )}
+                        {b.status !== "CANCELLED" && (
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ color: "var(--error)", fontSize: 12 }}
+                            onClick={() => setCancelTarget(b.id)}
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -290,6 +317,20 @@ export default function Bookings() {
           variant="danger"
           onConfirm={() => cancelTarget && handleCancel(cancelTarget)}
           onCancel={() => setCancelTarget(null)}
+          confirming={canceling}
+        />
+
+        {/* Approve confirmation modal */}
+        <ConfirmModal
+          open={approveTarget !== null}
+          title="Approve Booking"
+          message="Are you sure you want to approve this booking? The status will be changed to Confirmed."
+          confirmLabel="Yes, Approve"
+          cancelLabel="Not Yet"
+          variant="info"
+          onConfirm={() => approveTarget && handleApprove(approveTarget)}
+          onCancel={() => setApproveTarget(null)}
+          confirming={approving}
         />
       </div>
     </main>

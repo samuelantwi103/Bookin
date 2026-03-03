@@ -60,6 +60,47 @@
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* ========== Dark Mode ========== */
+[data-theme="dark"] {
+  --primary: #4A90D9;
+  --primary-light: #5BA0E8;
+  --primary-dark: #3A7BC8;
+  --primary-50: #1A2A3F;
+  --primary-100: #253A52;
+  --gold: #E8C84A;
+  --gold-light: #F0D668;
+  --gold-dark: #D4B63E;
+  --gold-50: #2A2510;
+  --gold-100: #3A3318;
+
+  --bg: #0F1117;
+  --bg-alt: #1A1D27;
+  --surface: #1E2130;
+  --surface-hover: #252838;
+
+  --text: #E8EAF0;
+  --text-secondary: #A0A6B4;
+  --text-muted: #6B7280;
+  --text-inverse: #111827;
+
+  --success: #22C55E;
+  --success-bg: #0D2818;
+  --error: #EF4444;
+  --error-bg: #2D1212;
+  --warning: #FBBF24;
+  --warning-bg: #2D2506;
+  --info: #60A5FA;
+  --info-bg: #152040;
+
+  --border: #2D3348;
+  --border-focus: #4A90D9;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.4), 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.45), 0 10px 10px rgba(0,0,0,0.3);
+}
+
 /* ========== Reset ========== */
 *, *::before, *::after {
   box-sizing: border-box;

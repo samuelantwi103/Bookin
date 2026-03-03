@@ -101,6 +101,17 @@ public class BookingController {
         return ResponseEntity.ok(booking);
     }
 
+    @PutMapping("/{id}/approve")
+    @Operation(summary = "Approve a pending booking", description = "Admin approves a pending booking, changing its status to CONFIRMED")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Booking approved"),
+        @ApiResponse(responseCode = "404", description = "Booking not found", content = @Content),
+        @ApiResponse(responseCode = "409", description = "Booking is not pending", content = @Content)
+    })
+    public ResponseEntity<Booking> approveBooking(@PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.approveBooking(id));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> cancelBooking(@PathVariable Long id) {
         bookingService.cancelBooking(id);

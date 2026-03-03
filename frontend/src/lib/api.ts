@@ -73,6 +73,8 @@ export const api = {
     request<Booking>('/bookings', { method: 'POST', body: JSON.stringify(data) }),
   cancelBooking: (id: number) =>
     request<Booking>(`/bookings/${id}`, { method: 'DELETE' }),
+  approveBooking: (id: number) =>
+    request<Booking>(`/bookings/${id}/approve`, { method: 'PUT' }),
 
   /* ── Availability ── */
   fetchAvailability: (facilityId: number, date: string) =>
