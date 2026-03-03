@@ -10,12 +10,16 @@ import type { Building, Facility, User, Booking, FacilityType } from "@/lib/type
 import { FACILITY_TYPE_LABELS, FACILITY_TYPE_ICONS } from "@/lib/types";
 import Link from "next/link";
 import { Building2, DoorOpen, Calendar, Users, BarChart3, Lock, Check, X, Clock, CheckCircle2, XCircle, Star, Crown } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 type Tab = "campus" | "users" | "analytics";
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("campus");
   const { user, isLoading: authLoading } = useAuth();
+  const { theme } = useTheme();
+  const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
+  const accentMuted = theme === "dark" ? "var(--primary-readable)" : "var(--primary-dark)";
 
   // Load cached data from localStorage
   const loadCachedData = () => {
@@ -133,7 +137,7 @@ export default function AdminDashboard() {
           <div className="stat-card" style={{ background: "var(--primary-50)", border: "1px solid var(--primary-100)" }}>
             <div className="stat-icon" style={{ background: "var(--primary)", color: "white" }}><Building2 size={20} /></div>
             <div>
-              <div className="stat-value" style={{ color: "var(--primary)" }}>
+              <div className="stat-value" style={{ color: accentText }}>
                 {buildings.length}
               </div>
               <div className="stat-label" style={{ color: "var(--text-secondary)" }}>Buildings</div>
@@ -142,7 +146,7 @@ export default function AdminDashboard() {
           <div className="stat-card" style={{ background: "var(--gold-50)", border: "1px solid var(--gold-100)" }}>
             <div className="stat-icon" style={{ background: "var(--gold)", color: "var(--primary-dark)" }}><DoorOpen size={20} /></div>
             <div>
-              <div className="stat-value" style={{ color: "var(--primary-dark)" }}>
+              <div className="stat-value" style={{ color: accentMuted }}>
                 {facilities.length}
               </div>
               <div className="stat-label" style={{ color: "var(--text-secondary)" }}>Facilities</div>
@@ -151,7 +155,7 @@ export default function AdminDashboard() {
           <div className="stat-card" style={{ background: "var(--primary-50)", border: "1px solid var(--primary-100)" }}>
             <div className="stat-icon" style={{ background: "var(--primary)", color: "white" }}><Calendar size={20} /></div>
             <div>
-              <div className="stat-value" style={{ color: "var(--primary)" }}>
+              <div className="stat-value" style={{ color: accentText }}>
                 {stats.activeBookings}
               </div>
               <div className="stat-label" style={{ color: "var(--text-secondary)" }}>Active Bookings</div>
@@ -160,7 +164,7 @@ export default function AdminDashboard() {
           <div className="stat-card" style={{ background: "var(--gold-50)", border: "1px solid var(--gold-100)" }}>
             <div className="stat-icon" style={{ background: "var(--gold)", color: "var(--primary-dark)" }}><Users size={20} /></div>
             <div>
-              <div className="stat-value" style={{ color: "var(--primary-dark)" }}>
+              <div className="stat-value" style={{ color: accentMuted }}>
                 {users.length}
               </div>
               <div className="stat-label" style={{ color: "var(--text-secondary)" }}>Users</div>
@@ -210,6 +214,9 @@ export default function AdminDashboard() {
 
 /* ─── Unified Campus Tab (Buildings + Facilities) ─── */
 function CampusTab({ onDataChange }: { onDataChange: () => void }) {
+  const { theme } = useTheme();
+  const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
+  const accentMuted = theme === "dark" ? "var(--primary-readable)" : "var(--primary-dark)";
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -447,9 +454,9 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
                     <div style={{ fontSize: 13, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                       <span>{b.campus}</span>
                       <span style={{ color: "var(--border)" }}>·</span>
-                      <span style={{ color: "var(--primary)", fontWeight: 600 }}>{bFacilities.length} room{bFacilities.length !== 1 ? "s" : ""}</span>
+                      <span style={{ color: accentText, fontWeight: 600 }}>{bFacilities.length} room{bFacilities.length !== 1 ? "s" : ""}</span>
                       <span style={{ color: "var(--border)" }}>·</span>
-                      <span style={{ color: "var(--primary-dark)", fontWeight: 600 }}>{totalCap} seats</span>
+                      <span style={{ color: accentMuted, fontWeight: 600 }}>{totalCap} seats</span>
                     </div>
                   </div>
                 </div>
@@ -518,7 +525,7 @@ function CampusTab({ onDataChange }: { onDataChange: () => void }) {
                         <button
                           className="btn btn-ghost btn-sm"
                           onClick={() => openFacilityCreate(b.id)}
-                          style={{ color: "var(--primary-dark)", fontWeight: 600 }}
+                          style={{ color: accentMuted, fontWeight: 600 }}
                         >
                           + Add Facility to {b.name}
                         </button>
@@ -664,6 +671,9 @@ function AnalyticsTab({
   users: User[];
   loading: boolean;
 }) {
+  const { theme } = useTheme();
+  const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
+  const accentMuted = theme === "dark" ? "var(--primary-readable)" : "var(--primary-dark)";
   const analytics = useMemo(() => {
     if (loading || bookings.length === 0) return null;
 
@@ -785,10 +795,10 @@ function AnalyticsTab({
       {/* Row 1: Summary stat strip */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
         {[
-          { icon: <Calendar size={18} />, label: "Total Bookings", value: bookings.length, color: "var(--primary)" },
+          { icon: <Calendar size={18} />, label: "Total Bookings", value: bookings.length, color: accentText },
           { icon: <CheckCircle2 size={18} />, label: "Confirmed", value: bookings.filter((b) => b.status === "CONFIRMED").length, color: "var(--success)" },
           { icon: <Clock size={18} />, label: "Upcoming", value: analytics.upcoming, color: "var(--gold)" },
-          { icon: <Clock size={18} />, label: "Hours Booked", value: Math.round(analytics.totalHours), color: "var(--primary)" },
+          { icon: <Clock size={18} />, label: "Hours Booked", value: Math.round(analytics.totalHours), color: accentText },
           { icon: <XCircle size={18} />, label: "Cancelled", value: bookings.filter((b) => b.status === "CANCELLED").length, color: "var(--error)" },
         ].map((s) => (
           <div key={s.label} className="card" style={{ padding: "14px 16px", textAlign: "center", borderTop: `3px solid ${s.color}` }}>
@@ -810,7 +820,7 @@ function AnalyticsTab({
           <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 140 }}>
             {analytics.last7.map((d) => (
               <div key={d.date} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--primary)" }}>{d.total || ""}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: accentText }}>{d.total || ""}</div>
                 <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
                   {d.confirmed > 0 && (
                     <div
@@ -956,7 +966,7 @@ function AnalyticsTab({
                           height: 28,
                           borderRadius: 6,
                           background: i === 0 ? "var(--gold)" : "var(--primary-50)",
-                          color: i === 0 ? "var(--primary-dark)" : "var(--primary)",
+                          color: i === 0 ? "var(--primary-dark)" : accentText,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -974,7 +984,7 @@ function AnalyticsTab({
                         </div>
                       </div>
                     </div>
-                    <div style={{ fontWeight: 800, fontSize: 15, fontFamily: "var(--font-display)", color: "var(--primary)" }}>
+                    <div style={{ fontWeight: 800, fontSize: 15, fontFamily: "var(--font-display)", color: accentText }}>
                       {bu.bookingCount}
                     </div>
                   </div>
@@ -1013,7 +1023,7 @@ function AnalyticsTab({
                     height: 32,
                     borderRadius: "50%",
                     background: i === 0 ? "var(--gold)" : i === 1 ? "var(--primary)" : "var(--primary-50)",
-                    color: i < 2 ? (i === 0 ? "var(--primary-dark)" : "white") : "var(--primary)",
+                    color: i < 2 ? (i === 0 ? "var(--primary-dark)" : "white") : accentText,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1030,7 +1040,7 @@ function AnalyticsTab({
                     <div style={{ height: "100%", width: `${(tb.count / analytics.maxBooker) * 100}%`, background: i === 0 ? "var(--gold)" : "var(--primary)", borderRadius: 2, transition: "width 0.6s" }} />
                   </div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "var(--primary-dark)", fontFamily: "var(--font-display)" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: accentMuted, fontFamily: "var(--font-display)" }}>
                   {tb.count}
                 </div>
               </div>

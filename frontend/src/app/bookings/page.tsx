@@ -9,6 +9,7 @@ import Link from "next/link";
 import type { Booking } from "@/lib/types";
 import { BOOKING_STATUS_LABELS, FACILITY_TYPE_ICONS, FACILITY_TYPE_LABELS } from "@/lib/types";
 import { Lock, Calendar, Star, Building2 } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Bookings() {
   // Load cached bookings from localStorage
@@ -39,6 +40,9 @@ export default function Bookings() {
   const [approving, setApproving] = useState(false);
   const [approveTarget, setApproveTarget] = useState<number | null>(null);
   const { user, isLoading: authLoading } = useAuth();
+  const { theme } = useTheme();
+  const accentText = theme === "dark" ? "var(--gold)" : "var(--primary)";
+  const accentMuted = theme === "dark" ? "var(--gold)" : "var(--primary-dark)";
 
   useEffect(() => {
     if (user) loadBookings();
@@ -166,7 +170,7 @@ export default function Bookings() {
         {/* Stats row */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12, marginBottom: 24 }}>
           {[
-            { label: "Total", value: bookings.length, color: "var(--primary)" },
+            { label: "Total", value: bookings.length, color: accentText },
             { label: "Confirmed", value: bookings.filter(b => b.status === "CONFIRMED").length, color: "var(--success)" },
             { label: "Pending", value: bookings.filter(b => b.status === "PENDING").length, color: "var(--gold)" },
             { label: "Cancelled", value: bookings.filter(b => b.status === "CANCELLED").length, color: "var(--error)" },
@@ -195,7 +199,7 @@ export default function Bookings() {
                   marginLeft: 6,
                   fontSize: 11,
                   background: filter === f ? "var(--gold)" : "var(--bg-alt)",
-                  color: filter === f ? "var(--primary-dark)" : "var(--text-muted)",
+                  color: filter === f ? accentMuted : "var(--text-muted)",
                   borderRadius: 99,
                   padding: "1px 7px",
                   fontWeight: 700,
@@ -339,6 +343,9 @@ export default function Bookings() {
 
 /* ─── Personal Insights Component ─── */
 function PersonalInsights({ bookings, isAdmin }: { bookings: Booking[]; isAdmin: boolean }) {
+  const { theme } = useTheme();
+  const accentMuted = theme === "dark" ? "var(--primary-readable)" : "var(--primary-dark)";
+  const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
   const insights = useMemo(() => {
     const confirmed = bookings.filter((b) => b.status === "CONFIRMED");
     const today = new Date().toISOString().split("T")[0];
@@ -402,13 +409,13 @@ function PersonalInsights({ bookings, isAdmin }: { bookings: Booking[]; isAdmin:
         </h3>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div style={{ textAlign: "center", padding: 12, background: "var(--gold-50)", borderRadius: "var(--radius)" }}>
-            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)", color: "var(--primary-dark)" }}>
+            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)", color: accentMuted }}>
               {insights.totalHours}h
             </div>
             <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Hours Booked</div>
           </div>
           <div style={{ textAlign: "center", padding: 12, background: "var(--primary-50)", borderRadius: "var(--radius)" }}>
-            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)", color: "var(--primary)" }}>
+            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)", color: accentText }}>
               {insights.upcoming.length}
             </div>
             <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Upcoming</div>

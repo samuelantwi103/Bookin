@@ -10,10 +10,13 @@ import type { Building, Facility, AvailabilitySlot } from "@/lib/types";
 import { FACILITY_TYPE_LABELS, FACILITY_TYPE_ICONS } from "@/lib/types";
 import Link from "next/link";
 import { Lock, Calendar, Building2 as BuildingIcon } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 function BookContent() {
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
+  const { theme } = useTheme();
+  const accentMuted = theme === "dark" ? "var(--primary-readable)" : "var(--primary-dark)";
 
   // Data
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -567,7 +570,7 @@ function BookContent() {
                       alignItems: "center",
                     }}
                   >
-                    <div style={{ fontSize: 14, color: "var(--primary-dark)", fontWeight: 700 }}>
+                    <div style={{ fontSize: 14, color: accentMuted, fontWeight: 700 }}>
                       ✨ {selectedSlots.length} slot{selectedSlots.length > 1 ? "s" : ""} selected: {timeRange.start} – {timeRange.end}
                     </div>
                     <button

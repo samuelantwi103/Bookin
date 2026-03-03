@@ -3,6 +3,7 @@
 import type { Facility } from "@/lib/types";
 import { FACILITY_TYPE_LABELS, FACILITY_TYPE_ICONS } from "@/lib/types";
 import { MapPin, Users } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 interface FacilityCardProps {
   facility: Facility;
@@ -11,13 +12,15 @@ interface FacilityCardProps {
 }
 
 export default function FacilityCard({ facility, onSelect, selected }: FacilityCardProps) {
+  const { theme } = useTheme();
+  const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
   return (
     <div
       className="card card-hover"
       onClick={() => onSelect(facility.id)}
       style={{
         cursor: "pointer",
-        borderColor: selected ? "var(--primary)" : "var(--border)",
+        borderColor: selected ? accentText : "var(--border)",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -45,7 +48,7 @@ export default function FacilityCard({ facility, onSelect, selected }: FacilityC
         </div>
       </div>
 
-      <div style={{ marginTop: 16, fontSize: 13, fontWeight: 600, color: "var(--primary)" }}>
+      <div style={{ marginTop: 16, fontSize: 13, fontWeight: 600, color: accentText }}>
         View Availability →
       </div>
     </div>

@@ -5,8 +5,11 @@ import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Signup() {
+  const { theme } = useTheme();
+  const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -320,7 +323,7 @@ export default function Signup() {
 
             <div style={{ textAlign: "center", fontSize: 14, color: "var(--text-secondary)" }}>
               Already have an account?{" "}
-              <Link href="/login" style={{ color: "var(--primary)", fontWeight: 600 }}>
+              <Link href="/login" style={{ color: accentText, fontWeight: 600 }}>
                 Sign in
               </Link>
             </div>

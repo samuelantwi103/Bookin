@@ -41,7 +41,7 @@ export default function Navbar() {
 
   const navLink = (href: string, label: string, icon?: string) => {
     const active = pathname === href;
-    const activeColor = theme === "dark" ? "var(--gold)" : "var(--primary)";
+    const activeColor = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
     return (
       <Link
         key={href}
@@ -295,7 +295,7 @@ export default function Navbar() {
                           padding: "10px 12px",
                           fontSize: 14,
                           fontWeight: pathname === item.href ? 700 : 500,
-                          color: pathname === item.href ? (theme === "dark" ? "var(--gold)" : "var(--primary)") : "var(--text)",
+                          color: pathname === item.href ? (theme === "dark" ? "var(--primary-readable)" : "var(--primary)") : "var(--text)",
                           borderRadius: "var(--radius-sm)",
                           transition: "background 0.15s",
                         }}
@@ -386,7 +386,7 @@ export default function Navbar() {
                 borderRadius: "var(--radius)",
                 fontSize: 16,
                 fontWeight: pathname === item.href ? 700 : 500,
-                color: pathname === item.href ? (theme === "dark" ? "var(--gold)" : "var(--primary)") : "var(--text)",
+                color: pathname === item.href ? (theme === "dark" ? "var(--primary-readable)" : "var(--primary)") : "var(--text)",
                 background: pathname === item.href ? (theme === "dark" ? "rgba(0,45,95,0.25)" : "var(--primary-50)") : "transparent",
               }}
             >

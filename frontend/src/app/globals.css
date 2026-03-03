@@ -70,6 +70,9 @@
   /* --primary, --primary-light, --primary-dark: same as light */
   /* --gold, --gold-light, --gold-dark: same as light */
 
+  /* Lighter blue for text use — #002D5F is illegible on dark surfaces */
+  --primary-readable: #5B9BD5;
+
   /* Tint backgrounds darkened so they don't clash with dark surfaces */
   --primary-50: #0A1929;
   --primary-100: #122240;
@@ -644,6 +647,7 @@ tr:hover td { background: var(--surface-hover); }
   color: white;
 }
 .step.completed { color: var(--primary); }
+[data-theme="dark"] .step.completed { color: var(--primary-readable); }
 .step-divider {
   width: 40px;
   height: 2px;
@@ -699,6 +703,7 @@ tr:hover td { background: var(--surface-hover); }
   color: var(--primary);
   border-bottom-color: var(--gold);
 }
+[data-theme="dark"] .tab.active { color: var(--primary-readable); }
 
 /* ========== Dividers ========== */
 .divider-gold {

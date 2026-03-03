@@ -5,8 +5,12 @@ import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Login() {
+  const { theme } = useTheme();
+  const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
+  const accentMuted = theme === "dark" ? "var(--primary-readable)" : "var(--primary-dark)";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -255,7 +259,7 @@ export default function Login() {
 
             <div style={{ textAlign: "center", fontSize: 14, color: "var(--text-secondary)" }}>
               Don't have an account?{" "}
-              <Link href="/signup" style={{ color: "var(--primary)", fontWeight: 600 }}>
+              <Link href="/signup" style={{ color: accentText, fontWeight: 600 }}>
                 Sign up
               </Link>
             </div>
@@ -272,16 +276,16 @@ export default function Login() {
               border: "1px solid var(--gold-100)",
             }}
           >
-            <div style={{ fontWeight: 600, marginBottom: 6, color: "var(--primary-dark)" }}>Demo accounts</div>
+            <div style={{ fontWeight: 600, marginBottom: 6, color: accentMuted }}>Demo accounts</div>
             <div>
-              <code style={{ color: "var(--primary)", fontWeight: 600 }}>samuel@ug.edu.gh</code>{" "}
+              <code style={{ color: accentText, fontWeight: 600 }}>samuel@ug.edu.gh</code>{" "}
               — Student
             </div>
             <div>
-              <code style={{ color: "var(--primary)", fontWeight: 600 }}>admin@ug.edu.gh</code>{" "}
+              <code style={{ color: accentText, fontWeight: 600 }}>admin@ug.edu.gh</code>{" "}
               — Admin
             </div>
-            <div style={{ marginTop: 8, fontWeight: 500, color: "var(--primary-dark)" }}>
+            <div style={{ marginTop: 8, fontWeight: 500, color: accentMuted }}>
               Password: <code style={{ fontWeight: 600 }}>password123</code>
             </div>
           </div>

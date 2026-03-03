@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { Building, Facility } from "@/lib/types";
 import { FACILITY_TYPE_ICONS, FACILITY_TYPE_LABELS } from "@/lib/types";
 import { Building2, DoorOpen, Users as UsersIcon } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Home() {
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -15,6 +16,8 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const accentReadable = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
 
   useEffect(() => {
     Promise.all([api.fetchBuildings(), api.fetchFacilities()])
@@ -350,7 +353,7 @@ export default function Home() {
                             fontSize: 11,
                             fontWeight: 500,
                             background: isGold ? "var(--gold-50)" : "var(--primary-50)",
-                            color: isGold ? "var(--gold-dark)" : "var(--primary)",
+                            color: isGold ? "var(--gold-dark)" : accentReadable,
                             borderRadius: 6,
                             padding: "3px 8px",
                           }}
