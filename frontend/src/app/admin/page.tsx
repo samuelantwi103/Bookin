@@ -674,6 +674,10 @@ function AnalyticsTab({
   const { theme } = useTheme();
   const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
   const accentMuted = theme === "dark" ? "var(--primary-readable)" : "var(--primary-dark)";
+  const chartBar = theme === "dark" ? "var(--gold)" : "var(--primary)";
+  const chartBar50 = theme === "dark" ? "var(--gold-50)" : "var(--primary-50)";
+  const chartBar100 = theme === "dark" ? "var(--gold-100)" : "var(--primary-100)";
+  const chartText = theme === "dark" ? "var(--gold-dark)" : "var(--primary)";
   const analytics = useMemo(() => {
     if (loading || bookings.length === 0) return null;
 
@@ -773,13 +777,13 @@ function AnalyticsTab({
   const heatColor = (val: number, max: number) => {
     if (val === 0) return "var(--bg-alt)";
     const ratio = val / max;
-    if (ratio < 0.33) return "var(--primary-50)";
-    if (ratio < 0.66) return "var(--primary-100)";
-    return "var(--primary)";
+    if (ratio < 0.33) return chartBar50;
+    if (ratio < 0.66) return chartBar100;
+    return chartBar;
   };
   const heatText = (val: number, max: number) => {
     if (val === 0) return "var(--text-muted)";
-    return val / max >= 0.66 ? "white" : "var(--primary)";
+    return val / max >= 0.66 ? (theme === "dark" ? "var(--primary-dark)" : "white") : chartText;
   };
 
   if (loading || !analytics) {
@@ -826,7 +830,7 @@ function AnalyticsTab({
                     <div
                       style={{
                         height: Math.max((d.confirmed / analytics.maxDay) * 100, 4),
-                        background: "var(--primary)",
+                        background: chartBar,
                         borderRadius: "4px 4px 0 0",
                         transition: "height 0.4s ease",
                       }}
@@ -851,7 +855,7 @@ function AnalyticsTab({
             ))}
           </div>
           <div style={{ display: "flex", gap: 16, marginTop: 12, fontSize: 11, color: "var(--text-muted)" }}>
-            <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 2, background: "var(--primary)", marginRight: 4 }} />Confirmed</span>
+            <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 2, background: chartBar, marginRight: 4 }} />Confirmed</span>
             <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 2, background: "var(--error)", marginRight: 4 }} />Cancelled</span>
           </div>
         </div>
@@ -905,7 +909,7 @@ function AnalyticsTab({
           <div style={{ display: "flex", gap: 8, marginTop: 10, fontSize: 10, color: "var(--text-muted)", alignItems: "center" }}>
             <span>Less</span>
             {[0, 0.2, 0.5, 0.8, 1].map((r, i) => (
-              <div key={i} style={{ width: 12, height: 12, borderRadius: 2, background: r === 0 ? "var(--bg-alt)" : r < 0.4 ? "var(--primary-50)" : r < 0.7 ? "var(--primary-100)" : "var(--primary)" }} />
+              <div key={i} style={{ width: 12, height: 12, borderRadius: 2, background: r === 0 ? "var(--bg-alt)" : r < 0.4 ? chartBar50 : r < 0.7 ? chartBar100 : chartBar }} />
             ))}
             <span>More</span>
           </div>
@@ -965,8 +969,8 @@ function AnalyticsTab({
                           width: 28,
                           height: 28,
                           borderRadius: 6,
-                          background: i === 0 ? "var(--gold)" : "var(--primary-50)",
-                          color: i === 0 ? "var(--primary-dark)" : accentText,
+                          background: i === 0 ? "var(--gold)" : chartBar50,
+                          color: i === 0 ? "var(--primary-dark)" : chartText,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -993,7 +997,7 @@ function AnalyticsTab({
                       style={{
                         height: "100%",
                         width: `${pct}%`,
-                        background: i === 0 ? "linear-gradient(90deg, var(--gold-dark), var(--gold))" : "var(--primary)",
+                        background: i === 0 ? "linear-gradient(90deg, var(--gold-dark), var(--gold))" : chartBar,
                         borderRadius: 3,
                         transition: "width 0.6s ease",
                       }}
@@ -1022,8 +1026,8 @@ function AnalyticsTab({
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
-                    background: i === 0 ? "var(--gold)" : i === 1 ? "var(--primary)" : "var(--primary-50)",
-                    color: i < 2 ? (i === 0 ? "var(--primary-dark)" : "white") : accentText,
+                    background: i === 0 ? "var(--gold)" : i === 1 ? chartBar : chartBar50,
+                    color: i < 2 ? (i === 0 ? "var(--primary-dark)" : (theme === "dark" ? "var(--primary-dark)" : "white")) : chartText,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1037,7 +1041,7 @@ function AnalyticsTab({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tb.user.name}</div>
                   <div style={{ height: 4, background: "var(--bg-alt)", borderRadius: 2, marginTop: 3, overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${(tb.count / analytics.maxBooker) * 100}%`, background: i === 0 ? "var(--gold)" : "var(--primary)", borderRadius: 2, transition: "width 0.6s" }} />
+                    <div style={{ height: "100%", width: `${(tb.count / analytics.maxBooker) * 100}%`, background: i === 0 ? "var(--gold)" : chartBar, borderRadius: 2, transition: "width 0.6s" }} />
                   </div>
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 800, color: accentMuted, fontFamily: "var(--font-display)" }}>
