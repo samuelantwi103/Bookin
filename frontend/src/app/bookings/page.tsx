@@ -41,8 +41,8 @@ export default function Bookings() {
   const [approveTarget, setApproveTarget] = useState<number | null>(null);
   const { user, isLoading: authLoading } = useAuth();
   const { theme } = useTheme();
-  const accentText = theme === "dark" ? "var(--gold)" : "var(--primary)";
-  const accentMuted = theme === "dark" ? "var(--gold)" : "var(--primary-dark)";
+  const accentText = theme === "dark" ? "var(--primary-readable)" : "var(--primary)";
+  const accentMuted = theme === "dark" ? "var(--primary-readable)" : "var(--primary-dark)";
 
   useEffect(() => {
     if (user) loadBookings();
