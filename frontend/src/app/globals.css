@@ -61,28 +61,34 @@
 }
 
 /* ========== Dark Mode ========== */
+/* Brand colors --primary (#002D5F) and --gold (#CFB53B) are intentionally
+   preserved unchanged. Primary still works for button/badge backgrounds
+   (white text on #002D5F = ~40:1 contrast). For text-on-dark uses,
+   component-level overrides below substitute gold or light colors.       */
 [data-theme="dark"] {
-  --primary: #4A90D9;
-  --primary-light: #5BA0E8;
-  --primary-dark: #3A7BC8;
-  --primary-50: #1A2A3F;
-  --primary-100: #253A52;
-  --gold: #E8C84A;
-  --gold-light: #F0D668;
-  --gold-dark: #D4B63E;
-  --gold-50: #2A2510;
-  --gold-100: #3A3318;
+  /* Brand — unchanged */
+  /* --primary, --primary-light, --primary-dark: same as light */
+  /* --gold, --gold-light, --gold-dark: same as light */
 
+  /* Tint backgrounds darkened so they don't clash with dark surfaces */
+  --primary-50: #0A1929;
+  --primary-100: #122240;
+  --gold-50: #1A1508;
+  --gold-100: #2A2210;
+
+  /* Surfaces */
   --bg: #0F1117;
   --bg-alt: #1A1D27;
   --surface: #1E2130;
   --surface-hover: #252838;
 
+  /* Text */
   --text: #E8EAF0;
   --text-secondary: #A0A6B4;
   --text-muted: #6B7280;
-  --text-inverse: #111827;
+  --text-inverse: #FFFFFF;
 
+  /* Status — brightened for dark-bg readability */
   --success: #22C55E;
   --success-bg: #0D2818;
   --error: #EF4444;
@@ -92,13 +98,65 @@
   --info: #60A5FA;
   --info-bg: #152040;
 
+  /* Borders & Shadows */
   --border: #2D3348;
-  --border-focus: #4A90D9;
+  /* Gold focus ring has ~11:1 contrast on dark surfaces */
+  --border-focus: var(--gold);
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
   --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.3);
   --shadow-lg: 0 10px 15px rgba(0,0,0,0.4), 0 4px 6px rgba(0,0,0,0.3);
   --shadow-xl: 0 20px 25px rgba(0,0,0,0.45), 0 10px 10px rgba(0,0,0,0.3);
+}
+
+/* ── Dark mode component contrast fixes ─────────────────────────────────
+   Primary (#002D5F) as text-color on dark bg ≈ 1.2:1 — fails WCAG AA.
+   Gold (#CFB53B) on dark bg ≈ 11:1 — excellent contrast, used as accent.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* badge-primary: dark-primary-50 bg + dark-primary text = invisible */
+[data-theme="dark"] .badge-primary {
+  background: rgba(0, 45, 95, 0.45);
+  color: #8CC1E8;
+  border-color: rgba(0, 45, 95, 0.75);
+}
+
+/* btn-outline: primary text (#002D5F) invisible on dark surface */
+[data-theme="dark"] .btn-outline {
+  color: var(--text);
+  border-color: var(--border);
+}
+[data-theme="dark"] .btn-outline:hover {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--text-inverse);
+}
+
+/* btn-outline-gold: gold text still good on dark; keep same */
+
+/* card-primary: dark primary-50 tint with readable content */
+[data-theme="dark"] .card-primary {
+  background: rgba(0, 45, 95, 0.2);
+  border-color: rgba(0, 45, 95, 0.5);
+}
+
+/* card-gold: subtle gold tint on dark */
+[data-theme="dark"] .card-gold {
+  background: rgba(207, 181, 59, 0.07);
+  border-color: rgba(207, 181, 59, 0.25);
+}
+
+/* card hover: gold accent border instead of primary */
+[data-theme="dark"] .card-hover:hover {
+  border-color: rgba(207, 181, 59, 0.35);
+}
+
+/* Focus rings: gold instead of near-invisible dark-blue glow */
+[data-theme="dark"] .input:focus,
+[data-theme="dark"] .textarea:focus,
+[data-theme="dark"] .select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(207, 181, 59, 0.2);
 }
 
 /* ========== Reset ========== */

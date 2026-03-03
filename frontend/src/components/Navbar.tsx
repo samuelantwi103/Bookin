@@ -41,6 +41,7 @@ export default function Navbar() {
 
   const navLink = (href: string, label: string, icon?: string) => {
     const active = pathname === href;
+    const activeColor = theme === "dark" ? "var(--gold)" : "var(--primary)";
     return (
       <Link
         key={href}
@@ -48,11 +49,11 @@ export default function Navbar() {
         style={{
           fontSize: 14,
           fontWeight: active ? 700 : 500,
-          color: active ? "var(--primary)" : "var(--text-secondary)",
+          color: active ? activeColor : "var(--text-secondary)",
           transition: "color 0.2s",
           position: "relative" as const,
           paddingBottom: 2,
-          borderBottom: active ? "2px solid var(--primary)" : "2px solid transparent",
+          borderBottom: active ? `2px solid ${activeColor}` : "2px solid transparent",
         }}
       >
         {icon && <span style={{ marginRight: 6 }}>{icon}</span>}
@@ -124,7 +125,7 @@ export default function Navbar() {
               fontFamily: "var(--font-display)",
               fontWeight: 800,
               fontSize: 22,
-              color: "var(--primary)",
+              color: theme === "dark" ? "var(--text)" : "var(--primary)",
               letterSpacing: "-0.03em",
             }}
           >
@@ -294,7 +295,7 @@ export default function Navbar() {
                           padding: "10px 12px",
                           fontSize: 14,
                           fontWeight: pathname === item.href ? 700 : 500,
-                          color: pathname === item.href ? "var(--primary)" : "var(--text)",
+                          color: pathname === item.href ? (theme === "dark" ? "var(--gold)" : "var(--primary)") : "var(--text)",
                           borderRadius: "var(--radius-sm)",
                           transition: "background 0.15s",
                         }}
@@ -385,8 +386,8 @@ export default function Navbar() {
                 borderRadius: "var(--radius)",
                 fontSize: 16,
                 fontWeight: pathname === item.href ? 700 : 500,
-                color: pathname === item.href ? "var(--primary)" : "var(--text)",
-                background: pathname === item.href ? "var(--primary-50)" : "transparent",
+                color: pathname === item.href ? (theme === "dark" ? "var(--gold)" : "var(--primary)") : "var(--text)",
+                background: pathname === item.href ? (theme === "dark" ? "rgba(0,45,95,0.25)" : "var(--primary-50)") : "transparent",
               }}
             >
               {item.label}
